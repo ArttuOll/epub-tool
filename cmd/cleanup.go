@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-func Cleanup(path string) error {
+func CleanupE(path string) error {
 	r, err := zip.OpenReader(path)
 	if err != nil {
 		return fmt.Errorf("failed to open epub file: %w", err)
