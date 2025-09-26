@@ -3,6 +3,7 @@ package cmd
 import (
 	"archive/zip"
 	"fmt"
+	"path/filepath"
 )
 
 func CleanupE(path string) error {
@@ -13,10 +14,15 @@ func CleanupE(path string) error {
 
 	defer r.Close()
 
-	// Iterate through the files in the archive,
-	// printing some of their contents.
+	cssFiles := make([]*zip.File, 0)
 	for _, f := range r.File {
-		fmt.Printf("Files contained by the given epub %s:\n", f.Name)
+		if filepath.Ext(f.Name) == ".css" {
+			cssFiles = append(cssFiles, f)
+		}
+	}
+
+	for _, f := range cssFiles {
+		fmt.Printf("found CSS file: %s\n", f.Name)
 	}
 
 	return nil
