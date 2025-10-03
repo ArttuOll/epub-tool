@@ -3,8 +3,10 @@ package cmd
 import (
 	"archive/zip"
 	"bufio"
+	"bytes"
 	"fmt"
 	"path/filepath"
+	"strings"
 )
 
 func CleanupE(path string) error {
@@ -39,12 +41,27 @@ func cleanCssFile(f *zip.File) error {
 	defer reader.Close()
 
 	scanner := bufio.NewScanner(reader)
-	//buffer := bytes.NewBuffer(make([]byte, 0))
+	buffer := bytes.NewBuffer(make([]byte, 0))
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		fmt.Printf("%s\n", line)
+
+		trimmed := strings.TrimSpace(line)
+		if isColorDeclaration(trimmed) {
+			fmt.Printf("removing color declaration: %s\n", trimmed)
+			continue
+		}
+
+		_, err := buffer.WriteString(line + "\n")
+		if err != nil {
+			return fmt.Errorf("error writing line to buffer: %s", line)
+		}
 	}
 
 	return nil
+}
+
+func isColorDeclaration(line string) bool {
+	property := strings.Split(line, ":")[0]
+	return property == "color"
 }
