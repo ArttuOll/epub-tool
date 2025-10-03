@@ -45,10 +45,15 @@ func cleanCssFile(f *zip.File) error {
 
 	for scanner.Scan() {
 		line := scanner.Text()
-
 		trimmed := strings.TrimSpace(line)
+
 		if isColorDeclaration(trimmed) {
 			fmt.Printf("removing color declaration: %s\n", trimmed)
+			continue
+		}
+
+		if isFontSizeDeclaration(trimmed) {
+			fmt.Printf("removing font size declaration: %s\n", trimmed)
 			continue
 		}
 
@@ -64,4 +69,9 @@ func cleanCssFile(f *zip.File) error {
 func isColorDeclaration(line string) bool {
 	property := strings.Split(line, ":")[0]
 	return property == "color"
+}
+
+func isFontSizeDeclaration(line string) bool {
+	property := strings.Split(line, ":")[0]
+	return property == "font-size"
 }
