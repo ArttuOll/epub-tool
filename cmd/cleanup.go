@@ -17,16 +17,11 @@ func CleanupE(path string) error {
 
 	defer r.Close()
 
-	cssFiles := make([]*zip.File, 0)
 	for _, f := range r.File {
 		if filepath.Ext(f.Name) == ".css" {
-			cssFiles = append(cssFiles, f)
+			fmt.Printf("found CSS file: %s\n", f.Name)
+			cleanCssFile(f)
 		}
-	}
-
-	for _, f := range cssFiles {
-		fmt.Printf("found CSS file: %s\n", f.Name)
-		cleanCssFile(f)
 	}
 
 	return nil
