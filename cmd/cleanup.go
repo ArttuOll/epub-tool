@@ -29,7 +29,7 @@ func CleanupE(path string) error {
 	zipWriter := zip.NewWriter(archive)
 
 	for _, f := range r.File {
-		buffer := bytes.NewBuffer(make([]byte, 0))
+		buffer := new(bytes.Buffer)
 		if filepath.Ext(f.Name) == ".css" {
 			fmt.Printf("found CSS file: %s\n", f.Name)
 			buffer, err = cleanCssFile(f)
@@ -38,15 +38,7 @@ func CleanupE(path string) error {
 			}
 		}
 
-		fileWriter, err := zipWriter.Create(f.Name)
-		if err != nil {
-			return fmt.Errorf("failed to create a writer to add file %s to zip archive: %w", f.Name, err)
-		}
-
-		_, err = fileWriter.Write(buffer.Bytes())
-		if err != nil {
-			return fmt.Errorf("failed to write file %s to the new archive: %w", f.Name, err)
-		}
+		writeFileToArchive(buffer, zipWriter, f)
 	}
 
 	err = zipWriter.Close()
@@ -66,7 +58,7 @@ func cleanCssFile(f *zip.File) (*bytes.Buffer, error) {
 	defer reader.Close()
 
 	scanner := bufio.NewScanner(reader)
-	buffer := bytes.NewBuffer(make([]byte, 0))
+	buffer := new(bytes.Buffer)
 
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -99,4 +91,18 @@ func isColorDeclaration(line string) bool {
 func isFontSizeDeclaration(line string) bool {
 	property := strings.Split(line, ":")[0]
 	return property == "font-size"
+}
+
+func writeFileToArchive(buffer *bytes.Buffer, zipWriter *zip.Writer, f *zip.File) error {
+	fileWriter, err := zipWriter.Create(f.Name)
+	if err != nil {
+		return fmt.Errorf("failed to create a writer to add file %s to zip archive: %w", f.Name, err)
+	}
+
+	_, err = fileWriter.Write(buffer.Bytes())
+	if err != nil {
+		return fmt.Errorf("failed to write file %s to the new archive: %w", f.Name, err)
+	}
+
+	return nil
 }
