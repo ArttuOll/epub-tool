@@ -5,6 +5,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -36,6 +37,8 @@ func CleanupE(path string) error {
 			if err != nil {
 				return fmt.Errorf("failed to clean CSS file %s: %w", f.Name, err)
 			}
+		} else {
+			readFileToBuffer(f, buffer)
 		}
 
 		writeFileToArchive(buffer, zipWriter, f)
@@ -81,6 +84,21 @@ func cleanCssFile(f *zip.File) (*bytes.Buffer, error) {
 	}
 
 	return buffer, nil
+}
+
+func readFileToBuffer(f *zip.File, buffer *bytes.Buffer) error {
+	rc, err := f.Open()
+	if err != nil {
+		return fmt.Errorf("failed to open file %s: %w", f.Name, err)
+	}
+	defer rc.Close()
+
+	_, err = io.Copy(buffer, rc)
+	if err != nil {
+		return fmt.Errorf("failed to copy file %s into buffer: %w", f.Name, err)
+	}
+
+	return nil
 }
 
 func isColorDeclaration(line string) bool {
