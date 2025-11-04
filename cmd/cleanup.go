@@ -19,7 +19,7 @@ func CleanupE(path string) error {
 	defer r.Close()
 
 	// TODO: the file name has to be configurable in the command
-	archive, err := os.Create("archive.zip")
+	archive, err := os.Create(getDefaultOutputFileName(path))
 	if err != nil {
 		return fmt.Errorf("failed to create zip archive: %w", err)
 	}
@@ -105,4 +105,12 @@ func writeFileToArchive(buffer *bytes.Buffer, zipWriter *zip.Writer, f *zip.File
 	}
 
 	return nil
+}
+
+func getDefaultOutputFileName(path string) string {
+	filename := filepath.Base(path)
+	extension := filepath.Ext(path)
+	name := filename[:len(filename)-len(extension)]
+
+	return fmt.Sprintf("%s_cleaned.zip", name)
 }
