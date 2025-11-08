@@ -9,9 +9,12 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/ArttuOll/epub-tool/util"
+	"github.com/spf13/cobra"
 )
 
-func CleanupE(path string) error {
+func CleanupE(cmd *cobra.Command, path string) error {
 	r, err := zip.OpenReader(path)
 	if err != nil {
 		return fmt.Errorf("failed to open epub file: %w", err)
@@ -32,8 +35,10 @@ func CleanupE(path string) error {
 	for _, f := range r.File {
 		buffer := new(bytes.Buffer)
 		if filepath.Ext(f.Name) == ".css" {
-			fmt.Printf("found CSS file: %s\n", f.Name)
-			buffer, err = cleanCssFile(f)
+
+			util.LogVerbose(cmd, fmt.Sprintf("found CSS file: %s\n", f.Name))
+
+			buffer, err = cleanCssFile(cmd, f)
 			if err != nil {
 				return fmt.Errorf("failed to clean CSS file %s: %w", f.Name, err)
 			}
@@ -52,7 +57,7 @@ func CleanupE(path string) error {
 	return nil
 }
 
-func cleanCssFile(f *zip.File) (*bytes.Buffer, error) {
+func cleanCssFile(cmd *cobra.Command, f *zip.File) (*bytes.Buffer, error) {
 	reader, err := f.Open()
 	if err != nil {
 		return nil, fmt.Errorf("failed to open CSS file %s: %v", f.Name, err)
@@ -68,12 +73,12 @@ func cleanCssFile(f *zip.File) (*bytes.Buffer, error) {
 		trimmed := strings.TrimSpace(line)
 
 		if isColorDeclaration(trimmed) {
-			fmt.Printf("removing color declaration: %s\n", trimmed)
+			util.LogVerbose(cmd, fmt.Sprintf("removing color declaration: %s\n", trimmed))
 			continue
 		}
 
 		if isFontSizeDeclaration(trimmed) {
-			fmt.Printf("removing font size declaration: %s\n", trimmed)
+			util.LogVerbose(cmd, fmt.Sprintf("removing font size declaration: %s\n", trimmed))
 			continue
 		}
 
