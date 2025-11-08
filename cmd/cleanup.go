@@ -156,5 +156,5 @@ func getDefaultOutputFileName(path string) string {
 	extension := filepath.Ext(path)
 	name := filename[:len(filename)-len(extension)]
 
-	return fmt.Sprintf("%s_cleaned.zip", name)
+	return fmt.Sprintf("%s_cleaned.epub", name)
 }
