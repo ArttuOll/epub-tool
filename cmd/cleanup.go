@@ -110,12 +110,12 @@ func readFileToBuffer(f *zip.File, buffer *bytes.Buffer) error {
 
 func isColorDeclaration(line string) bool {
 	property := strings.Split(line, ":")[0]
-	return property == "color"
+	return strings.EqualFold(property, "color")
 }
 
 func isFontSizeDeclaration(line string) bool {
 	property := strings.Split(line, ":")[0]
-	return property == "font-size"
+	return strings.EqualFold(property, "font-size")
 }
 
 func writeFileToArchive(buffer *bytes.Buffer, zipWriter *zip.Writer, f *zip.File) error {
