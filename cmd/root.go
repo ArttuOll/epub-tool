@@ -43,4 +43,6 @@ func init() {
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "enable verbose output")
+
+	rootCmd.Flags().StringP("outputFileName", "o", "", "Name of the cleaned output file")
 }

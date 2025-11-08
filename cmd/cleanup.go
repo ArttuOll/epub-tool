@@ -22,8 +22,7 @@ func CleanupE(cmd *cobra.Command, path string) error {
 
 	defer r.Close()
 
-	// TODO: the file name has to be configurable in the command
-	archive, err := os.Create(getDefaultOutputFileName(path))
+	archive, err := os.Create(getOutputFileName(cmd, path))
 	if err != nil {
 		return fmt.Errorf("failed to create zip archive: %w", err)
 	}
@@ -138,6 +137,18 @@ func writeFileToArchive(buffer *bytes.Buffer, zipWriter *zip.Writer, f *zip.File
 	}
 
 	return nil
+}
+
+func getOutputFileName(cmd *cobra.Command, path string) string {
+	filename := ""
+	outputFileName, _ := cmd.Flags().GetString("outputFileName")
+	if outputFileName == "" {
+		filename = getDefaultOutputFileName(path)
+	} else {
+		filename = outputFileName
+	}
+
+	return filename
 }
 
 func getDefaultOutputFileName(path string) string {
