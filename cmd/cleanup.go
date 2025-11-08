@@ -112,7 +112,17 @@ func isFontSizeDeclaration(line string) bool {
 }
 
 func writeFileToArchive(buffer *bytes.Buffer, zipWriter *zip.Writer, f *zip.File) error {
-	fileWriter, err := zipWriter.Create(f.Name)
+	header := &zip.FileHeader{
+		Name:           f.Name,
+		Comment:        f.Comment,
+		Modified:       f.Modified,
+		Method:         f.Method,
+		NonUTF8:        f.NonUTF8,
+		CreatorVersion: f.CreatorVersion,
+		ExternalAttrs:  f.ExternalAttrs,
+	}
+
+	fileWriter, err := zipWriter.CreateHeader(header)
 	if err != nil {
 		return fmt.Errorf("failed to create a writer to add file %s to zip archive: %w", f.Name, err)
 	}
