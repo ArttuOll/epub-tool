@@ -42,15 +42,18 @@ func CleanupE(cmd *cobra.Command, path string) error {
 				return fmt.Errorf("failed to clean CSS file %s: %w", f.Name, err)
 			}
 		} else {
-			readFileToBuffer(f, buffer)
+			if err := readFileToBuffer(f, buffer); err != nil {
+				return fmt.Errorf("failed to read file %s: %w", f.Name, err)
+			}
 		}
 
-		writeFileToArchive(buffer, zipWriter, f)
+		if err := writeFileToArchive(buffer, zipWriter, f); err != nil {
+			return fmt.Errorf("failed to write file %s to archive: %w", f.Name, err)
+		}
 	}
 
-	err = zipWriter.Close()
-	if err != nil {
-		return fmt.Errorf("failed to write zip archive %s", err)
+	if err := zipWriter.Close(); err != nil {
+		return fmt.Errorf("failed to close zip writer: %w", err)
 	}
 
 	return nil
