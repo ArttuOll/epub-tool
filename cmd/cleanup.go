@@ -32,8 +32,8 @@ func CleanupE(cmd *cobra.Command, path string) error {
 	zipWriter := zip.NewWriter(archive)
 
 	for _, f := range r.File {
-		buffer := new(bytes.Buffer)
 		if filepath.Ext(f.Name) == ".css" {
+			buffer := new(bytes.Buffer)
 
 			util.LogVerbose(cmd, fmt.Sprintf("found CSS file: %s\n", f.Name))
 
@@ -41,14 +41,14 @@ func CleanupE(cmd *cobra.Command, path string) error {
 			if err != nil {
 				return fmt.Errorf("failed to clean CSS file %s: %w", f.Name, err)
 			}
-		} else {
-			if err := readFileToBuffer(f, buffer); err != nil {
-				return fmt.Errorf("failed to read file %s: %w", f.Name, err)
-			}
-		}
 
-		if err := writeFileToArchive(buffer, zipWriter, f); err != nil {
-			return fmt.Errorf("failed to write file %s to archive: %w", f.Name, err)
+			if err := writeFileToArchive(buffer, zipWriter, f); err != nil {
+				return fmt.Errorf("failed to write file %s to archive: %w", f.Name, err)
+			}
+		} else {
+			if err := copyFileToArchive(f, zipWriter); err != nil {
+				return fmt.Errorf("failed to copy file %s to zip archive: %w", f.Name, err)
+			}
 		}
 	}
 
@@ -93,16 +93,20 @@ func cleanCssFile(cmd *cobra.Command, f *zip.File) (*bytes.Buffer, error) {
 	return buffer, nil
 }
 
-func readFileToBuffer(f *zip.File, buffer *bytes.Buffer) error {
+func copyFileToArchive(f *zip.File, zipWriter *zip.Writer) error {
 	rc, err := f.Open()
 	if err != nil {
 		return fmt.Errorf("failed to open file %s: %w", f.Name, err)
 	}
 	defer rc.Close()
 
-	_, err = io.Copy(buffer, rc)
+	writer, err := zipWriter.CreateHeader(&f.FileHeader)
 	if err != nil {
-		return fmt.Errorf("failed to copy file %s into buffer: %w", f.Name, err)
+		return fmt.Errorf("failed to create writer for %v: %w", f.Name, err)
+	}
+
+	if _, err := io.Copy(writer, rc); err != nil {
+		return fmt.Errorf("failed to copy file %s to zip archive: %w", f.Name, err)
 	}
 
 	return nil
