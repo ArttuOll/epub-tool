@@ -17,8 +17,11 @@ examples and usage of using your application. For example:
 Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
+	PreRun: func(cmd *cobra.Command, args []string) {
+		if dryRun, _ := cmd.Flags().GetBool("dryRun"); dryRun {
+			cmd.Flags().Set("verbose", "true")
+		}
+	},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return CleanupE(cmd, args[0])
 	},
@@ -45,4 +48,5 @@ func init() {
 	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "enable verbose output")
 
 	rootCmd.Flags().StringP("outputFileName", "o", "", "name of the cleaned output file")
+	rootCmd.Flags().BoolP("dryRun", "d", false, "print changes that would be made, but don't write them to disk")
 }

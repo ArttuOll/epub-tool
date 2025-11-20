@@ -22,6 +22,10 @@ func CleanupE(cmd *cobra.Command, path string) error {
 
 	defer r.Close()
 
+	if dryRun, _ := cmd.Flags().GetBool("dryRun"); dryRun {
+		return runDry(cmd, r)
+	}
+
 	archive, err := os.Create(getOutputFileName(cmd, path))
 	if err != nil {
 		return fmt.Errorf("failed to create zip archive: %w", err)
@@ -59,6 +63,22 @@ func CleanupE(cmd *cobra.Command, path string) error {
 	return nil
 }
 
+func runDry(cmd *cobra.Command, r *zip.ReadCloser) error {
+	for _, f := range r.File {
+		if filepath.Ext(f.Name) == ".css" {
+			util.LogVerbose(cmd, fmt.Sprintf("found CSS file: %s\n", f.Name))
+
+			_, err := cleanCssFile(cmd, f)
+			if err != nil {
+				return fmt.Errorf("failed to clean CSS file %s: %w", f.Name, err)
+			}
+
+		}
+	}
+
+	return nil
+}
+
 func cleanCssFile(cmd *cobra.Command, f *zip.File) (*bytes.Buffer, error) {
 	reader, err := f.Open()
 	if err != nil {
@@ -84,7 +104,10 @@ func cleanCssFile(cmd *cobra.Command, f *zip.File) (*bytes.Buffer, error) {
 			continue
 		}
 
-		_, err := buffer.WriteString(line + "\n")
+		if dryRun, _ := cmd.Flags().GetBool("dryRun"); !dryRun {
+			_, err = buffer.WriteString(line + "\n")
+		}
+
 		if err != nil {
 			return nil, fmt.Errorf("error writing line to buffer: %s", line)
 		}
