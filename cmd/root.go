@@ -10,13 +10,12 @@ import (
 var rootCmd = &cobra.Command{
 	Use:   "epub-tool",
 	Args:  cobra.MinimumNArgs(1),
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Removes annoying hard-coded CSS styles from epub files.",
+	Long: `epub-tool removes from epub files CSS styles that harm the reading experience.
+	
+Currently this means: 
+	1. Removing font size declarations that make it impossible to adjust the font size in your ebook reader
+	2. Removing text color declarations that cause the text color to remain black when the reader switches the background to black in dark mode`,
 	PreRun: func(cmd *cobra.Command, args []string) {
 		if dryRun, _ := cmd.Flags().GetBool("dryRun"); dryRun {
 			cmd.Flags().Set("verbose", "true")
