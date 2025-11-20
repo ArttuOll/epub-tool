@@ -44,5 +44,5 @@ func init() {
 	// when this action is called directly.
 	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "enable verbose output")
 
-	rootCmd.Flags().StringP("outputFileName", "o", "", "Name of the cleaned output file")
+	rootCmd.Flags().StringP("outputFileName", "o", "", "name of the cleaned output file")
 }
