@@ -15,7 +15,12 @@ var rootCmd = &cobra.Command{
 	
 Currently this means: 
 	1. Removing font size declarations that make it impossible to adjust the font size in your ebook reader
-	2. Removing text color declarations that cause the text color to remain black when the reader switches the background to black in dark mode`,
+	2. Removing text color declarations that cause the text color to remain black when the reader switches the background to black in dark mode
+	3. Optionally (using the --removeBackgroundColors flag) removing background color declarations that might make some graphic elements invisible in dark mode
+	
+To run the basic cleanup: epub-tool <target-epub-file>
+
+To additionally remove all background colors: epub-tool -b <target-epub-file>`,
 	PreRun: func(cmd *cobra.Command, args []string) {
 		if dryRun, _ := cmd.Flags().GetBool("dryRun"); dryRun {
 			cmd.Flags().Set("verbose", "true")
