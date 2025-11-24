@@ -48,4 +48,5 @@ func init() {
 
 	rootCmd.Flags().StringP("outputFileName", "o", "", "name of the cleaned output file")
 	rootCmd.Flags().BoolP("dryRun", "d", false, "print changes that would be made, but don't write them to disk")
+	rootCmd.Flags().BoolP("removeBackgroundColors", "b", false, "additionally remove all background-color declarations. This might help if some graphic elements aren't visible in dark mode.")
 }

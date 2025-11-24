@@ -104,6 +104,11 @@ func cleanCssFile(cmd *cobra.Command, f *zip.File) (*bytes.Buffer, error) {
 			continue
 		}
 
+		if rbc, _ := cmd.Flags().GetBool("removeBackgroundColors"); rbc && isBackgroundColorDeclaration(trimmed) {
+			util.LogVerbose(cmd, fmt.Sprintf("removing background color declaration: %s\n", trimmed))
+			continue
+		}
+
 		if dryRun, _ := cmd.Flags().GetBool("dryRun"); !dryRun {
 			_, err = buffer.WriteString(line + "\n")
 		}
@@ -143,6 +148,11 @@ func isColorDeclaration(line string) bool {
 func isFontSizeDeclaration(line string) bool {
 	property := strings.Split(line, ":")[0]
 	return strings.EqualFold(property, "font-size")
+}
+
+func isBackgroundColorDeclaration(line string) bool {
+	property := strings.Split(line, ":")[0]
+	return strings.EqualFold(property, "background-color")
 }
 
 func writeFileToArchive(buffer *bytes.Buffer, zipWriter *zip.Writer, f *zip.File) error {
