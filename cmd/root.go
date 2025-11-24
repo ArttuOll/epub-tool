@@ -20,7 +20,9 @@ Currently this means:
 	
 To run the basic cleanup: epub-tool <target-epub-file>
 
-To additionally remove all background colors: epub-tool -b <target-epub-file>`,
+To additionally remove all background colors: epub-tool -b <target-epub-file>
+
+The command outputs a new file which is a copy of <target-epub-file>, but with the chosen styles removed and the prefix "_cleaned" added to its filename. The output filename can be customised with the -o flag.`,
 	PreRun: func(cmd *cobra.Command, args []string) {
 		if dryRun, _ := cmd.Flags().GetBool("dryRun"); dryRun {
 			cmd.Flags().Set("verbose", "true")
